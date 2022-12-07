@@ -34,7 +34,9 @@ public class OpenNonVolatile {
 
         final N5Reader n5 = new N5FSReader(n5Path);
 
-        final int numScales = 7;
+        //final int numScales = 7;
+        final int numScales = n5.list(n5Group).length;
+
         final RandomAccessibleInterval<UnsignedByteType>[] mipmaps = (RandomAccessibleInterval<UnsignedByteType>[]) new RandomAccessibleInterval[numScales];
         final double[][] scales = new double[numScales][3];
 
@@ -44,8 +46,10 @@ public class OpenNonVolatile {
             final double inverseScale = 1.0 / scale;
             final RandomAccessibleInterval<UnsignedByteType> img = N5Utils.openVolatile(n5, n5Group + "/s" + scaleIndex);
 
+			// TODO: somehow inject code
+            // function( RandomAccessibleInterval, scaleLevel ) >> RandomAccessibleInterval
+
 			/*
-			// TODO
 			final int blockRadius = (int)Math.round(511 * inverseScale);
 			final ImageJStackOp<UnsignedByteType> cllcn =
 					new ImageJStackOp<>(

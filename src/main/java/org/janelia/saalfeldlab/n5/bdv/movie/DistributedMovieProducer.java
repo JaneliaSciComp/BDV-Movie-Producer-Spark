@@ -8,6 +8,7 @@ import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import bdv.util.RandomAccessibleIntervalMipmapSource;
+import bdv.viewer.Interpolation;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.ViewerState;
 import bdv.viewer.animate.SimilarityTransformAnimator;
@@ -83,8 +84,8 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
         final SparkConf conf = new SparkConf().setAppName("DistributedMovieProducer");
         // TODO: REMOVE
-        conf.setMaster("local");
-        conf.set("spark.driver.bindAddress", "127.0.0.1");
+        //conf.setMaster("local");
+        //conf.set("spark.driver.bindAddress", "127.0.0.1");
 
         final JavaSparkContext sc = new JavaSparkContext(conf);
         sc.setLogLevel("ERROR");
@@ -94,11 +95,14 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
         rdd.foreach(batchElements -> {
             System.out.println("Starting batch from " + batchElements.get(0).getFileIndex() + " sized: " + batchElements.size());
 
+			// TODO: somehow inject code
+            // function( RandomAccessibleInterval, scaleLevel ) >> RandomAccessibleInterval
             final RandomAccessibleIntervalMipmapSource<?> mipmapSource = OpenNonVolatile.createMipmapSource(n5Path, n5Group);
 
             final BdvStackSource<?> bdv = BdvFunctions.show(mipmapSource, BdvOptions.options());
 
             ViewerPanel viewer = bdv.getBdvHandle().getViewerPanel();
+            viewer.setInterpolation( Interpolation.NLINEAR );
 
             final ViewerState renderState = viewer.state();
             final ScaleBarOverlayRenderer scalebar = new ScaleBarOverlayRenderer();
@@ -181,6 +185,8 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
 
         });
+
+        sc.close();
 
         System.out.println("done, took: " + (System.currentTimeMillis() - time) + " ms.");
         return null;
