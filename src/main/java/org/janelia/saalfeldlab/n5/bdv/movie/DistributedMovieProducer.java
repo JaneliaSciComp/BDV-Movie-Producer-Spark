@@ -8,6 +8,7 @@ import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import bdv.util.RandomAccessibleIntervalMipmapSource;
+import bdv.viewer.BasicViewerState;
 import bdv.viewer.Interpolation;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.ViewerState;
@@ -76,6 +77,13 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
         final ArrayList<MovieFrameInst> movieFrames = MovieFramesSerializer.getFrom(new File(jsonTransformations));
 
         final List<ArrayList<VideoProducerStep>> batches = VideoProducerStep.generateBatches(movieFrames, batch);
+
+        /*
+        final List<ArrayList<VideoProducerStep>> batchesOld = VideoProducerStep.generateBatches(movieFrames, batch);
+        final List<ArrayList<VideoProducerStep>> batches = new ArrayList<ArrayList<VideoProducerStep>>();
+        batches.add( batchesOld.get( 0 ) );
+		*/
+
         System.out.println("Generated " + batches.size() + " batches.");
 
         // Testing serialization
@@ -104,9 +112,10 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
             ViewerPanel viewer = bdv.getBdvHandle().getViewerPanel();
             viewer.setInterpolation( Interpolation.NLINEAR );
 
-            final ViewerState renderState = viewer.state();
+            //final ViewerState renderState = viewer.state();
             final ScaleBarOverlayRenderer scalebar = new ScaleBarOverlayRenderer();
 
+            /*
             int screenWidth = viewer.getDisplayComponent().getWidth();
             int screenHeight = viewer.getDisplayComponent().getHeight();
             double ratio = Math.min(width * 1.0 / screenWidth, height * 1.0 / screenHeight);
@@ -117,6 +126,21 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
                     ratio, 0, 0, 0,
                     0, ratio, 0, 0,
                     0, 0, 1.0, 0);
+			*/
+
+    		final ViewerState renderState = new BasicViewerState( viewer.state().snapshot() );
+    		final int canvasW = viewer.getDisplay().getWidth();
+    		final int canvasH = viewer.getDisplay().getHeight();
+
+    		final AffineTransform3D affine = new AffineTransform3D();
+    		renderState.getViewerTransform( affine );
+
+    		affine.set( affine.get( 0, 3 ) - canvasW / 2, 0, 3 );
+    		affine.set( affine.get( 1, 3 ) - canvasH / 2, 1, 3 );
+    		affine.scale( ( double ) width / canvasW );
+    		affine.set( affine.get( 0, 3 ) + width / 2, 0, 3 );
+    		affine.set( affine.get( 1, 3 ) + height / 2, 1, 3 );
+    		renderState.setViewerTransform( affine );
 
             final MultiBoxOverlayRenderer box = new MultiBoxOverlayRenderer(width, height);
 
@@ -152,8 +176,8 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
                 final AffineTransform3D tkd = animator.get(accel((double) videoProducerStep.getStep() / (double) frames, accel));
 
-                tkd.preConcatenate(viewerScale);
-                viewer.state().setViewerTransform(tkd);
+                //tkd.preConcatenate(viewerScale);
+                //viewer.state().setViewerTransform(tkd);
                 renderState.setViewerTransform(tkd);
                 renderer.requestRepaint();
                 try {
