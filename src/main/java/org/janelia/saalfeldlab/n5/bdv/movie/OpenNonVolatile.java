@@ -82,37 +82,36 @@ public class OpenNonVolatile {
         int width = 800;
         int height = 600;
 
-
 //        int width = 2560;
 //        int height = 1600;
         final RandomAccessibleIntervalMipmapSource<?> mipmapSource = createMipmapSource(n5Path, n5Group);
 
         final BdvStackSource<?> bdv = BdvFunctions.show(mipmapSource, BdvOptions.options().numRenderingThreads((Runtime.getRuntime().availableProcessors() - 1) / 2));
 
-        List<MovieFrameInst> movieFrames = MovieFramesSerializer.getFrom(new File(jsonTransformations));
-
-        int size = movieFrames.size();
-
-        final AffineTransform3D[] transforms = new AffineTransform3D[size];
-        final int[] frames = new int[size];
-        final int[] accel = new int[size];
-
-        for (int i = 0; i < size; i++) {
-            MovieFrameInst currentFrame = movieFrames.get(i);
-            transforms[i] = currentFrame.getTransform();
-            frames[i] = currentFrame.getFrames();
-            accel[i] = currentFrame.getAccel();
-        }
-
-        MovieProducer.recordMovie(
-                bdv.getBdvHandle().getViewerPanel(),
-                transforms,
-                frames,
-                accel,
-                width,
-                height,
-                outputFolder,
-                new ProgressWriterConsole());
+//        List<MovieFrameInst> movieFrames = MovieFramesSerializer.getFrom(new File(jsonTransformations));
+//
+//        int size = movieFrames.size();
+//
+//        final AffineTransform3D[] transforms = new AffineTransform3D[size];
+//        final int[] frames = new int[size];
+//        final int[] accel = new int[size];
+//
+//        for (int i = 0; i < size; i++) {
+//            MovieFrameInst currentFrame = movieFrames.get(i);
+//            transforms[i] = currentFrame.getTransform();
+//            frames[i] = currentFrame.getFrames();
+//            accel[i] = currentFrame.getAccel();
+//        }
+//
+//        MovieProducer.recordMovie(
+//                bdv.getBdvHandle().getViewerPanel(),
+//                transforms,
+//                frames,
+//                accel,
+//                width,
+//                height,
+//                outputFolder,
+//                new ProgressWriterConsole());
 //        int i  = 0;
 //        for (int k = 1; k < transforms.length; ++k) {
 //            AffineTransform3D transformStart = transforms[k - 1];
