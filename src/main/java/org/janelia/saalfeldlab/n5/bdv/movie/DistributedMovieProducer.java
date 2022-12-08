@@ -88,13 +88,13 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
         final ArrayList<MovieFrameInst> movieFrames = MovieFramesSerializer.getFrom(new File(jsonTransformations));
 
-        //final List<ArrayList<VideoProducerStep>> batches = VideoProducerStep.generateBatches(movieFrames, batch);
+        final List<ArrayList<VideoProducerStep>> batches = VideoProducerStep.generateBatches(movieFrames, batch);
 
-        
+        /*
         final List<ArrayList<VideoProducerStep>> batchesOld = VideoProducerStep.generateBatches(movieFrames, batch);
         final List<ArrayList<VideoProducerStep>> batches = new ArrayList<ArrayList<VideoProducerStep>>();
         batches.add( batchesOld.get( 6 ) );
-		
+		*/
 
         System.out.println("Generated " + batches.size() + " batches.");
 
