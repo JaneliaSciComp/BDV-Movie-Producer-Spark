@@ -5,6 +5,7 @@ import bdv.tools.movie.MovieProducer;
 import bdv.tools.movie.preview.MovieFrameInst;
 import bdv.tools.movie.serilizers.MovieFramesSerializer;
 import bdv.util.BdvFunctions;
+import bdv.util.BdvHandlePanel;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import bdv.util.RandomAccessibleIntervalMipmapSource;
@@ -119,7 +120,12 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
             // function( RandomAccessibleInterval, scaleLevel ) >> RandomAccessibleInterval
             final RandomAccessibleIntervalMipmapSource<?> mipmapSource = OpenNonVolatile.createMipmapSource(n5Path, n5Group);
 
-            final BdvStackSource<?> bdv = BdvFunctions.show(mipmapSource, BdvOptions.options());
+            //final BdvHandlePanel invisiblePanel = new BdvHandlePanel(null, BdvOptions.options());
+            final BdvStackSource<?> bdv = BdvFunctions.show(mipmapSource, BdvOptions.options()/*.addTo( invisiblePanel )*/);
+
+            // TODO according to tobias:
+            //BasicViewerState bvs = new BasicViewerState();
+            //bvs.addSource(source);
 
             ViewerPanel viewer = bdv.getBdvHandle().getViewerPanel();
             viewer.setInterpolation( Interpolation.NLINEAR );
