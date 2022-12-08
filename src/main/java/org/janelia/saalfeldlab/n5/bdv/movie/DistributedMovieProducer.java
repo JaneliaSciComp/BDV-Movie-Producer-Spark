@@ -88,13 +88,13 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
         final ArrayList<MovieFrameInst> movieFrames = MovieFramesSerializer.getFrom(new File(jsonTransformations));
 
-        final List<ArrayList<VideoProducerStep>> batches = VideoProducerStep.generateBatches(movieFrames, batch);
+        //final List<ArrayList<VideoProducerStep>> batches = VideoProducerStep.generateBatches(movieFrames, batch);
 
-        /*
+        
         final List<ArrayList<VideoProducerStep>> batchesOld = VideoProducerStep.generateBatches(movieFrames, batch);
         final List<ArrayList<VideoProducerStep>> batches = new ArrayList<ArrayList<VideoProducerStep>>();
         batches.add( batchesOld.get( 6 ) );
-		*/
+		
 
         System.out.println("Generated " + batches.size() + " batches.");
 
@@ -124,11 +124,10 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
             ViewerPanel viewer = bdv.getBdvHandle().getViewerPanel();
             viewer.setInterpolation( Interpolation.NLINEAR );
 
-    		bdv.getBdvHandle().getViewerPanel().setCanvasSize(screenWidthRecording, screenHeightRecording);
-    		final Window frame = SwingUtilities.getWindowAncestor(bdv.getBdvHandle().getViewerPanel());
-    		frame.setSize(screenWidthRecording, screenHeightRecording);
-
-    		Thread.sleep(1000);
+    		//bdv.getBdvHandle().getViewerPanel().setCanvasSize(screenWidthRecording, screenHeightRecording);
+    		//final Window frame = SwingUtilities.getWindowAncestor(bdv.getBdvHandle().getViewerPanel());
+    		//frame.setSize(screenWidthRecording, screenHeightRecording);
+    		//Thread.sleep(1000);
 
             //final ViewerState renderState = viewer.state();
             final ScaleBarOverlayRenderer scalebar = new ScaleBarOverlayRenderer();
@@ -184,21 +183,22 @@ public class DistributedMovieProducer implements Callable<Void>, Serializable {
 
                 final AffineTransform3D tkd = animator.get(accel((double) videoProducerStep.getStep() / (double) frames, accel));
 
-        		final AffineTransform3D affine = new AffineTransform3D();
-        		//renderState.getViewerTransform( affine );
+                // scale from original screen size during recording to current screen size
+        		tkd.set( tkd.get( 0, 3 ) - screenWidthRecording / 2, 0, 3 );
+        		tkd.set( tkd.get( 1, 3 ) - screenHeightRecording / 2, 1, 3 );
+        		tkd.scale( ( double ) canvasW / screenWidthRecording );
+        		tkd.set( tkd.get( 0, 3 ) + canvasW / 2, 0, 3 );
+        		tkd.set( tkd.get( 1, 3 ) + canvasH / 2, 1, 3 );
 
-        		affine.set( affine.get( 0, 3 ) - canvasW / 2, 0, 3 );
-        		affine.set( affine.get( 1, 3 ) - canvasH / 2, 1, 3 );
-        		affine.scale( ( double ) width / canvasW );
-        		affine.set( affine.get( 0, 3 ) + width / 2, 0, 3 );
-        		affine.set( affine.get( 1, 3 ) + height / 2, 1, 3 );
+                // scale from current screen to desired screen size for recording
+        		tkd.set( tkd.get( 0, 3 ) - canvasW / 2, 0, 3 );
+        		tkd.set( tkd.get( 1, 3 ) - canvasH / 2, 1, 3 );
+        		tkd.scale( ( double ) width / canvasW );
+        		tkd.set( tkd.get( 0, 3 ) + width / 2, 0, 3 );
+        		tkd.set( tkd.get( 1, 3 ) + height / 2, 1, 3 );
 
-        		tkd.preConcatenate( affine );
         		renderState.setViewerTransform( tkd );
 
-                //tkd.preConcatenate(viewerScale);
-                //viewer.state().setViewerTransform(tkd);
-                //renderState.setViewerTransform(tkd);
                 renderer.requestRepaint();
                 try {
                     renderer.paint(renderState);
